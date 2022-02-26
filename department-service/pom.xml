@@ -7,9 +7,9 @@
 		<artifactId>sample-microservices</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>employee-service</artifactId>
+	<artifactId>department-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>employee-service</name>
+	<name>department-service</name>
 	<packaging>jar</packaging>
 	
 	<dependencies>
