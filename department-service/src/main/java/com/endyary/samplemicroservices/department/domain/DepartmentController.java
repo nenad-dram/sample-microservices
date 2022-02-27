@@ -1,11 +1,14 @@
 package com.endyary.samplemicroservices.department.domain;
 
+import com.endyary.samplemicroservices.department.employee.EmployeeClient;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,6 +17,7 @@ public class DepartmentController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DepartmentController.class);
 
     private final DepartmentRepository repository;
+    private final EmployeeClient employeeClient;
 
     @PostMapping
     public Department add(@RequestBody Department department) {
@@ -39,5 +43,13 @@ public class DepartmentController {
         return repository.findByOrganization(organizationId);
     }
 
+    @GetMapping("/organization/{organizationId}/with-employees")
+    public List<Department> findByOrganizationWithEmployees(@PathVariable("organizationId") Long organizationId) {
+        LOGGER.info("Department find: organizationId={}, (with employees)", organizationId);
+        List<Department> departments = repository.findByOrganization(organizationId);
+        List<Department> responseDep = new ArrayList<>();
+        departments.forEach(d -> responseDep.add(d.toBuilder().employees(employeeClient.findByDepartment(d.getId())).build()));
+        return responseDep;
+    }
 
 }

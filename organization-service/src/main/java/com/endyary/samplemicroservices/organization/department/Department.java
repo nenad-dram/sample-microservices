@@ -1,13 +1,11 @@
-package com.endyary.samplemicroservices.department.domain;
+package com.endyary.samplemicroservices.organization.department;
 
-import com.endyary.samplemicroservices.department.employee.Employee;
-import lombok.Builder;
+import com.endyary.samplemicroservices.organization.employee.Employee;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-@Builder(toBuilder = true)
 public class Department {
 
     private Long id;
