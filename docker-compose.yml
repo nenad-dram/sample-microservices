@@ -1,0 +1,95 @@
+services:
+  config-service:
+    build: ./config-service
+    image: sample-microservices/config-service
+    container_name: config-service
+    ports:
+      - 8088:8088
+
+  discovery-service:
+    build: ./discovery-service
+    image: sample-microservices/discovery-service
+    container_name: discovery-service
+    depends_on:
+      - config-service
+    ports:
+      - 8761:8761
+    environment:
+      - JAVA_TOOL_OPTIONS=-Dspring.config.import=configserver:http://config-service:8088
+    entrypoint: /bin/sh
+    command: > 
+      -c "sleep 5; java -cp ./classes:./lib/* com.endyary.samplemicroservices.discovery.DiscoveryApplication"
+
+  gateway-service:
+    build: ./gateway-service
+    image: sample-microservices/gateway-service
+    container_name: gateway-service
+    depends_on:
+      - config-service
+      - discovery-service
+      - zipkin-server
+    ports:
+      - 8070:8070
+    environment:
+      - JAVA_TOOL_OPTIONS= -Deureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka -Dspring.config.import=optional:configserver:http://config-service:8088
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411/
+    entrypoint: /bin/sh
+    command: > 
+      -c "sleep 5; java -cp ./classes:./lib/* com.endyary.samplemicroservices.gateway.GatewayApplication"
+
+  employee-service:
+    build: ./employee-service
+    image: sample-microservices/employee-service
+    container_name: employee-service
+    depends_on:
+      - config-service
+      - discovery-service
+      - zipkin-server
+    ports:
+      - 8080:8080
+    environment:
+      - JAVA_TOOL_OPTIONS= -Deureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka -Dspring.config.import=optional:configserver:http://config-service:8088
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411/
+    entrypoint: /bin/sh
+    command: > 
+      -c "sleep 5; java -cp ./classes:./lib/* com.endyary.samplemicroservices.employee.EmployeeApplication"
+
+  department-service:
+    build: ./department-service
+    image: sample-microservices/department-service
+    container_name: department-service
+    depends_on:
+      - config-service
+      - discovery-service
+      - zipkin-server
+    ports:
+      - 8081:8081
+    environment:
+      - JAVA_TOOL_OPTIONS= -Deureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka -Dspring.config.import=optional:configserver:http://config-service:8088
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411/
+    entrypoint: /bin/sh
+    command: > 
+      -c "sleep 5; java -cp ./classes:./lib/* com.endyary.samplemicroservices.department.DepartmentApplication"
+
+  organization-service:
+    build: ./organization-service
+    image: sample-microservices/organization-service
+    container_name: organization-service
+    depends_on:
+      - config-service
+      - discovery-service
+      - zipkin-server
+    ports:
+      - 8082:8082
+    environment:
+      - JAVA_TOOL_OPTIONS= -Deureka.client.serviceUrl.defaultZone=http://discovery-service:8761/eureka -Dspring.config.import=optional:configserver:http://config-service:8088
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411/
+    entrypoint: /bin/sh
+    command: > 
+      -c "sleep 5; java -cp ./classes:./lib/* com.endyary.samplemicroservices.organization.OrganizationApplication"
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin-server
+    ports:
+      - "9411:9411"
